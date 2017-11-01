@@ -1,0 +1,22 @@
+{
+  "name": "usbthingy",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Avi Romanoff <avi@romanoff.me>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "express": "^4.16.2",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-flow": "^6.23.0",
+    "flow-bin": "^0.57.3"
+  },
+  "scripts": {
+    "build": "babel src -d lib",
+    "start": "node lib/index.js"
+  }
+}
