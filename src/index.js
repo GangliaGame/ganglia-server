@@ -100,6 +100,6 @@ app.get('/state', (req: $Request, res) => {
 })
 
 app.listen(port, function () {
-  addAlreadyPluggedInDevices()
+  // addAlreadyPluggedInDevices()
   console.log(`Serving on port ${port} 🙃`)
 })
