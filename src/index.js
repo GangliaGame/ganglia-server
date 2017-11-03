@@ -36,7 +36,7 @@ const weapons: $ReadOnlyArray<Weapon> = [
   },
   {
     name: 'Phasers',
-    sequence: [[3,2,null,0],['*','*','*','*']],
+    sequence: [[3,null,null,0],['*','*','*','*']],
     duration: 10,
     color: 'black',
   },
