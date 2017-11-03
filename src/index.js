@@ -120,7 +120,7 @@ function activeWeapon(bays: Array<Bay>, weapons: $ReadOnlyArray<Weapon>): ?Weapo
 }
 
 function newEnemy(id: EnemyID): Enemy {
-  const randomXPosition: number = _.random(GRID_SIZE)
+  const randomXPosition: number = _.random(GRID_SIZE - 1)
   const randomEnemyKind: EnemyKind = _.sample(_.values(enemyKinds))
   return {
     id,
