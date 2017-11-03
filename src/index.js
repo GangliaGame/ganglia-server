@@ -79,6 +79,7 @@ type GameState = {
   weapon: ?Weapon,
   gameOver: boolean,
   score: number,
+  gameStarted: boolean,
 }
 
 function newGameState(): GameState {
@@ -93,6 +94,7 @@ function newGameState(): GameState {
     weapon: null,
     weaponStartTime: null,
     gameOver: false,
+    gameStarted: false,
     score: 0,
   }
 }
@@ -170,6 +172,9 @@ app.get('/connect/wire/:wire/port/:port/bay/:bay', (req: $Request, res) => {
 	const port = Number(req.params.port)
 	console.log(`⭕️  Connected wire ${wire} to port ${port} bay ${bay}`)
 	state.bays[bay][port].wire = wire
+  if (!state.gameOver) {
+    state.gameStarted = true
+  }
   state.weapon = activeWeapon(state.bays, weapons)
   if (state.weapon) {
     state.weaponStartTime = Date.now()
@@ -196,6 +201,10 @@ app.get('/destroy/enemy/:enemyId', (req: $Request, res) => {
   console.log(`💥  Destroyed enemy with id ${enemyId}`)
   state = destroyEnemy(enemyId, state)
   res.json(state)
+})
+
+app.get('/newGame', (req: $Request, res) => {
+  state = newGameState()
 })
 
 const port = process.env.PORT || 9000
