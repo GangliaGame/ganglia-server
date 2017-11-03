@@ -148,6 +148,12 @@ function addEnemy(state: GameState): GameState {
   return newState
 }
 
+function gameTick() {
+  if (state.gameStarted && !state.gameOver) {
+    advanceEnemies(state)
+  }
+}
+
 function destroyEnemy(id: EnemyID, state: GameState): GameState {
   let newState = _.cloneDeep(state)
   newState.enemies = state.enemies.map(enemy => {
