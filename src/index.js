@@ -136,8 +136,8 @@ function newEnemy(id: EnemyID): Enemy {
 function advanceEnemies(state: GameState): GameState {
   let newState = _.cloneDeep(state)
   const advanceEnemy = (enemy: Enemy): Enemy => {
-    if (enemy.isDestroyed) return
-    enemy.y += 1
+    if (enemy.isDestroyed) return enemy
+    enemy.y = Math.min(enemy.y + 1, 14)
     if (enemy.y === GRID_SIZE) {
       state.gameOver = true
     }
