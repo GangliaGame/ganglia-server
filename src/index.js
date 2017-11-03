@@ -85,6 +85,7 @@ type GameState = {
   gameOver: boolean,
   score: number,
   gameStarted: boolean,
+  gameStartTime: ?timestamp,
 }
 
 function newGameState(): GameState {
@@ -100,6 +101,7 @@ function newGameState(): GameState {
     weaponStartTime: null,
     gameOver: false,
     gameStarted: false,
+    gameStartTime: Date.now(),
     score: 0,
   }
 }
@@ -148,8 +150,21 @@ function addEnemy(state: GameState): GameState {
   return newState
 }
 
-function gameTick() {
-  if (state.gameStarted && !state.gameOver) {
+function gameTick(state: GameState) {
+  if (!state.gameStarted || state.gameOver) return;
+  if (state.weaponStartTime && state.weapon) {
+    const weaponMillisRemaining = Date.now() - state.weaponStartTime
+    const didWeaponExpire = weaponMillisRemaining > state.weapon.duration * 1000
+    if (didWeaponExpire) {
+      state.weapon = null
+      state.weaponStartTime = null
+    }
+  }
+}
+
+function gameAdvanceTick(state: GameState) {
+  if (!state.gameStarted || state.gameOver) return
+  if (state.gameStartTime) {
     advanceEnemies(state)
   }
 }
@@ -224,3 +239,6 @@ app.listen(port, () => {
 })
 
 let state = newGameState()
+
+setInterval(() => gameTick(state), 10)
+setInterval(() => gameAdvanceTick(state), 2000)
