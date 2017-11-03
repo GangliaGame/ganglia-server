@@ -97,6 +97,13 @@ const destroyEnemy = (id: ID, state: GameState): GameState => {
   return newState
 }
 
+// set CORS headers
+app.use((req: $Request, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+  next()
+})
+
 app.get('/connect/wire/:wire/port/:port/bay/:bay', (req: $Request, res) => {
 	const wire = Number(req.params.wire)
 	const bay = Number(req.params.bay)
@@ -128,13 +135,6 @@ app.get('/destroy/enemy/:enemyId', (req: $Request, res) => {
   console.log(`destroyed enemy with id ${enemyId}`)
   state = destroyEnemy(enemyId, state)
   res.json(state)
-})
-
-// set CORS headers
-app.use((req: $Request, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-  next()
 })
 
 const port = process.env.PORT || 9000
