@@ -236,6 +236,7 @@ app.get('/destroy/enemy/:enemyId', (req: $Request, res) => {
 
 app.get('/newGame', (req: $Request, res) => {
   state = newGameState()
+  res.json(state)
 })
 
 const port = process.env.PORT || 9000
