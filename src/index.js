@@ -15,6 +15,7 @@ type seconds = number
 
 type Weapon = {
   name: string,
+  color: 'pink' | 'blue' | 'white' | 'black',
   sequence: Sequence,
   duration: seconds,
 }
@@ -24,21 +25,25 @@ const weapons: $ReadOnlyArray<Weapon> = [
     name: 'Disruptor Beam',
     sequence: [[0,'*','*',3],['*','*','*','*']],
     duration: 10,
+    color: 'blue',
   },
   {
     name: 'Pulse Bomb',
     sequence: [[null,null,1,3],['*','*','*','*']],
     duration: 10,
+    color: 'pink',
   },
   {
     name: 'Phasers',
     sequence: [[3,2,null,null],['*','*','*','*']],
     duration: 10,
+    color: 'black',
   },
   {
     name: 'Photon Torpedos',
     sequence: [[0,null,3,null],['*','*','*','*']],
     duration: 10,
+    color: 'white',
   },
 ]
 
