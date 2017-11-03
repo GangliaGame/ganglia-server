@@ -84,6 +84,7 @@ type GameState = {
   weaponStartTime: ?timestamp,
   weapon: ?Weapon,
   gameOver: boolean,
+  gameWon: boolean,
   score: number,
   gameStarted: boolean,
   gameStartTime: ?timestamp,
@@ -101,6 +102,7 @@ function newGameState(): GameState {
     weapon: null,
     weaponStartTime: null,
     gameOver: false,
+    gameWon: false,
     gameStarted: false,
     gameStartTime: Date.now(),
     score: 0,
@@ -180,6 +182,7 @@ function destroyEnemy(id: EnemyID, state: GameState): GameState {
     }
     return enemy
   })
+  newState.gameWon = newState.enemies.every(enemy => enemy.isDestroyed)
   return newState
 }
 
