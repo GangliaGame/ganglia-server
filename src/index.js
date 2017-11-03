@@ -4,38 +4,49 @@ import type { $Request } from 'express';
 import express from 'express'
 const app = express()
 
+const POINTS_PER_ENEMY = 25
 const NUM_STARTING_ENEMIES = 5
 const GRID_SIZE = 15
 const NUM_BAYS = 2
 const PORTS_PER_BAY = 4 // also change SequenceComponent type
 
-const weapons = {
-  Phasers: 'Phasers',
-  PulseBomb: 'Pulse Bomb',
-  DisruptorBeam: 'Disruptor Beam',
+type timestamp = number
+type seconds = number
+
+type Weapon = {
+  name: string,
+  sequence: Sequence,
+  duration: seconds,
 }
 
-const combos: $ReadOnlyArray<Combo> = [
+const weapons: $ReadOnlyArray<Weapon> = [
   {
-    weapon: 'DisruptorBeam',
+    name: 'Disruptor Beam',
     sequence: [[0,'*','*',3],['*','*','*','*']],
+    duration: 10,
   },
   {
-    weapon: 'PulseBomb',
+    name: 'Pulse Bomb',
     sequence: [[null,null,1,3],['*','*','*','*']],
+    duration: 10,
   },
   {
-    weapon: 'Phasers',
+    name: 'Phasers',
     sequence: [[3,2,null,null],['*','*','*','*']],
+    duration: 10,
+  },
+  {
+    name: 'Photon Torpedos',
+    sequence: [[0,null,3,null],['*','*','*','*']],
+    duration: 10,
   },
 ]
 
-type Weapon = $Keys<typeof weapons>
-
 const enemyKinds = {
-  Green: 'green',
-  Orange: 'orange',
-  Purple: 'purple',
+  Blue: 'blue',
+  Pink: 'pink',
+  White: 'white',
+  Black: 'black',
 }
 
 type EnemyKind = $Keys<typeof enemyKinds>
@@ -61,14 +72,10 @@ type SequenceComponent = 0 | 1 | 2 | 3 | '*' | null
 
 type Sequence = Array<Array<SequenceComponent>>
 
-type Combo = {
-  weapon: Weapon,
-  sequence: Sequence,
-}
-
 type GameState = {
   bays: Array<Bay>,
   enemies: Array<Enemy>,
+  weaponStartTime: ?timestamp,
   weapon: ?Weapon,
   gameOver: boolean,
   score: number,
@@ -84,17 +91,22 @@ function newGameState(): GameState {
     bays: Array(NUM_BAYS).fill().map(() => makeBay(PORTS_PER_BAY)),
     enemies: startingEnemies,
     weapon: null,
+    weaponStartTime: null,
     gameOver: false,
     score: 0,
   }
 }
 
-function activeWeapon(bays: Array<Bay>, combos: $ReadOnlyArray<Combo>): ?Weapon {
+function activeWeapon(bays: Array<Bay>, weapons: $ReadOnlyArray<Weapon>): ?Weapon {
   const componentMatches = ([a, b]) => (a === '*') || (b === '*') || (a === b)
   const sequenceMatches = (A, B) => _.zip(_.flatten(A), _.flatten(B)).every(componentMatches)
   const baysToSequence = bays => bays.map(bay => bay.map(({wire}) => wire))
-  const activeCombo = combos.find(({sequence}) => sequenceMatches(baysToSequence(bays), sequence))
-  return activeCombo ? activeCombo.weapon : null
+  const weapon = weapons.find(({sequence}) => sequenceMatches(baysToSequence(bays), sequence))
+  // No weapon active
+  if (!weapon) {
+    return null
+  }
+  return weapon
 }
 
 function newEnemy(id: EnemyID): Enemy {
@@ -109,6 +121,19 @@ function newEnemy(id: EnemyID): Enemy {
   }
 }
 
+function advanceEnemies(state: GameState): GameState {
+  let newState = _.cloneDeep(state)
+  const advanceEnemy = (enemy: Enemy): Enemy => {
+    enemy.y += 1
+    if (enemy.y === GRID_SIZE) {
+      state.gameOver = true
+    }
+    return enemy
+  }
+  newState.enemies = state.enemies.map(advanceEnemy)
+  return newState
+}
+
 function addEnemy(state: GameState): GameState {
   let newState = _.cloneDeep(state)
   const nextEnemyId: EnemyID = _.max(_.map(state.enemies, 'id')) + 1
@@ -119,7 +144,10 @@ function addEnemy(state: GameState): GameState {
 function destroyEnemy(id: EnemyID, state: GameState): GameState {
   let newState = _.cloneDeep(state)
   newState.enemies = state.enemies.map(enemy => {
-    if (enemy.id === id) enemy.isDestroyed = true
+    if (enemy.id === id) {
+      enemy.isDestroyed = true
+      state.score += POINTS_PER_ENEMY
+    }
     return enemy
   })
   return newState
@@ -142,7 +170,10 @@ app.get('/connect/wire/:wire/port/:port/bay/:bay', (req: $Request, res) => {
 	const port = Number(req.params.port)
 	console.log(`⭕️  Connected wire ${wire} to port ${port} bay ${bay}`)
 	state.bays[bay][port].wire = wire
-  state.weapon = activeWeapon(state.bays, combos)
+  state.weapon = activeWeapon(state.bays, weapons)
+  if (state.weapon) {
+    state.weaponStartTime = Date.now()
+  }
 	res.json(state)
 })
 
@@ -156,7 +187,7 @@ app.get('/disconnect/port/:port/bay/:bay', (req: $Request, res) => {
 		console.log(`❌  Disconnected wire ${String(wire)} from port ${port} bay ${bay}`)
 		state.bays[bay][port].wire = null
 	}
-  state.weapon = activeWeapon(state.bays, combos)
+  state.weapon = activeWeapon(state.bays, weapons)
 	res.json(state)
 })
 
