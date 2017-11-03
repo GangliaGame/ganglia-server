@@ -4,8 +4,9 @@ import type { $Request } from 'express';
 import express from 'express'
 const app = express()
 
+const ENEMY_ADVANCE_TIME = 3000
 const POINTS_PER_ENEMY = 25
-const NUM_STARTING_ENEMIES = 5
+const NUM_STARTING_ENEMIES = 4
 const GRID_SIZE = 15
 const NUM_BAYS = 2
 const PORTS_PER_BAY = 4 // also change SequenceComponent type
@@ -241,4 +242,4 @@ app.listen(port, () => {
 let state = newGameState()
 
 setInterval(() => gameTick(state), 10)
-setInterval(() => gameAdvanceTick(state), 2000)
+setInterval(() => gameAdvanceTick(state), ENEMY_ADVANCE_TIME)
