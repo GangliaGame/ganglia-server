@@ -30,7 +30,7 @@ const weapons: $ReadOnlyArray<Weapon> = [
   },
   {
     name: 'Pulse Bomb',
-    sequence: [[3,null,null,3],['*','*','*','*']],
+    sequence: [[3,null,0,null],['*','*','*','*']],
     duration: 10,
     color: 'pink',
   },
