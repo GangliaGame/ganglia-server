@@ -1,7 +1,5 @@
-//@flow
-import _ from 'lodash'
-import type { $Request } from 'express';
-import express from 'express'
+import * as _ from 'lodash'
+import * as express from 'express'
 const app = express()
 
 const ENEMY_ADVANCE_TIME = 3000
@@ -21,7 +19,7 @@ type Weapon = {
   duration: seconds,
 }
 
-const weapons: $ReadOnlyArray<Weapon> = [
+const weapons: Array<Weapon> = [
   {
     name: 'Disruptor Beam',
     sequence: [[3,'*','*',2],['*','*','*','*']],
@@ -48,56 +46,54 @@ const weapons: $ReadOnlyArray<Weapon> = [
   },
 ]
 
-const enemyKinds = {
-  Blue: 'blue',
-  Pink: 'pink',
-  White: 'white',
-  Black: 'black',
+enum EnemyKind {
+  Blue = 'blue',
+  Pink = 'pink',
+  White = 'white',
+  Black = 'black',
 }
-
-type EnemyKind = $Keys<typeof enemyKinds>
 
 type EnemyID = number
 
 type Enemy = {
   x: number,
   y: number,
-  kind: EnemyKind,
+  kind: string,
   id: EnemyID,
   isDestroyed: boolean,
 }
 
 type Port = {
-  wire: ?number,
+  wire?: number,
   isOnline: boolean,
 }
 
 type Bay = Array<Port>
 
-type SequenceComponent = 0 | 1 | 2 | 3 | '*' | null
+type SequenceComponent = number | '*' | null
 
 type Sequence = Array<Array<SequenceComponent>>
 
 type GameState = {
   bays: Array<Bay>,
   enemies: Array<Enemy>,
-  weaponStartTime: ?timestamp,
-  weapon: ?Weapon,
+  weaponStartTime?: timestamp,
+  weapon?: Weapon,
   gameOver: boolean,
   gameWon: boolean,
   score: number,
   gameStarted: boolean,
-  gameStartTime: ?timestamp,
+  gameStartTime?: timestamp,
 }
 
 function newGameState(): GameState {
-  const makeBay = (size: number): Bay => Array(size).fill().map(() => ({
+  const makeBay = (size: number): Bay => _.range(size).map(() => ({
   	wire: null,
   	isOnline: true,
   }))
   const startingEnemies = _.times(NUM_STARTING_ENEMIES, i => newEnemy(i))
   return {
-    bays: Array(NUM_BAYS).fill().map(() => makeBay(PORTS_PER_BAY)),
+    bays: _.range(NUM_BAYS).map(() => makeBay(PORTS_PER_BAY)),
     enemies: startingEnemies,
     weapon: null,
     weaponStartTime: null,
@@ -109,10 +105,10 @@ function newGameState(): GameState {
   }
 }
 
-function activeWeapon(bays: Array<Bay>, weapons: $ReadOnlyArray<Weapon>): ?Weapon {
-  const componentMatches = ([a, b]) => (a === '*') || (b === '*') || (a === b)
-  const sequenceMatches = (A, B) => _.zip(_.flatten(A), _.flatten(B)).every(componentMatches)
-  const baysToSequence = bays => bays.map(bay => bay.map(({wire}) => wire))
+function activeWeapon(bays: Array<Bay>, weapons: Array<Weapon>): Weapon | null {
+  const componentMatches = ([a, b]: [SequenceComponent, SequenceComponent]) => (a === '*') || (b === '*') || (a === b)
+  const sequenceMatches = (A: Sequence, B: Sequence) => _.zip(_.flatten(A), _.flatten(B)).every(componentMatches)
+  const baysToSequence = (bays: Array<Bay>) => bays.map(bay => bay.map(({wire}) => wire))
   const weapon = weapons.find(({sequence}) => sequenceMatches(baysToSequence(bays), sequence))
   // No weapon active
   if (!weapon) {
@@ -123,7 +119,7 @@ function activeWeapon(bays: Array<Bay>, weapons: $ReadOnlyArray<Weapon>): ?Weapo
 
 function newEnemy(id: EnemyID): Enemy {
   const randomXPosition: number = _.random(GRID_SIZE - 1)
-  const randomEnemyKind: EnemyKind = _.sample(_.values(enemyKinds))
+  const randomEnemyKind: string = _.sample(_.keys(EnemyKind))
   return {
     id,
     x: randomXPosition,
@@ -187,17 +183,17 @@ function destroyEnemy(id: EnemyID, state: GameState): GameState {
 }
 
 // set CORS headers
-app.use((req: $Request, res, next) => {
+app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
   next()
 })
 
-app.get('/state', (req: $Request, res) => {
+app.get('/state', (req, res) => {
 	res.json(state)
 })
 
-app.get('/connect/wire/:wire/port/:port/bay/:bay', (req: $Request, res) => {
+app.get('/connect/wire/:wire/port/:port/bay/:bay', (req, res) => {
 	const wire = Number(req.params.wire)
 	const bay = Number(req.params.bay)
 	const port = Number(req.params.port)
@@ -213,7 +209,7 @@ app.get('/connect/wire/:wire/port/:port/bay/:bay', (req: $Request, res) => {
 	res.json(state)
 })
 
-app.get('/disconnect/port/:port/bay/:bay', (req: $Request, res) => {
+app.get('/disconnect/port/:port/bay/:bay', (req, res) => {
 	const bay = Number(req.params.bay)
 	const port = Number(req.params.port)
 	const wire = state.bays[bay][port].wire
@@ -227,14 +223,14 @@ app.get('/disconnect/port/:port/bay/:bay', (req: $Request, res) => {
 	res.json(state)
 })
 
-app.get('/destroy/enemy/:enemyId', (req: $Request, res) => {
+app.get('/destroy/enemy/:enemyId', (req, res) => {
   const enemyId = Number(req.params.enemyId)
   console.log(`💥  Destroyed enemy with id ${enemyId}`)
   state = destroyEnemy(enemyId, state)
   res.json(state)
 })
 
-app.get('/newGame', (req: $Request, res) => {
+app.get('/newGame', (req, res) => {
   state = newGameState()
   res.json(state)
 })
