@@ -8,28 +8,28 @@ const POINTS_PER_ENEMY = 25;
 const NUM_STARTING_ENEMIES = 4;
 const GRID_SIZE = 15;
 const NUM_BAYS = 2;
-const PORTS_PER_BAY = 4; // also change SequenceComponent type
+const PORTS_PER_BAY = 4;
 const weapons = [
     {
-        name: 'Disruptor Beam',
+        name: 'Xanar Shells',
         sequence: [[3, '*', '*', 2], ['*', '*', '*', '*']],
         duration: 10,
         color: 'blue',
     },
     {
-        name: 'Pulse Bomb',
+        name: 'Plasma Field',
         sequence: [[3, null, 0, null], ['*', '*', '*', '*']],
         duration: 10,
         color: 'pink',
     },
     {
-        name: 'Phasers',
+        name: 'High-Energy Pulse Laser',
         sequence: [[3, null, null, 0], ['*', '*', '*', '*']],
         duration: 10,
         color: 'black',
     },
     {
-        name: 'Photon Torpedos',
+        name: 'Neutrino Torpedos',
         sequence: [[3, null, null, 1], ['*', '*', '*', '*']],
         duration: 10,
         color: 'white',
