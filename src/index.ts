@@ -2,12 +2,10 @@
 import * as express from 'express'
 const app = express()
 
-type WeaponId = number
-type EnergyId = number
+type WeaponLevel = 0 | 1 | 2 | 3
 
 type GameState = {
-  weaponId: WeaponId | null
-  energyId: EnergyId | null
+  weaponLevel: WeaponLevel
   isGameWon: boolean
   isGameLost: boolean
   isGameStarted: boolean
@@ -15,8 +13,7 @@ type GameState = {
 
 function newGameState(): GameState {
   return {
-    weaponId: null,
-    energyId: null,
+    weaponLevel: 0,
     isGameWon: false,
     isGameLost: false,
     isGameStarted: false
@@ -34,18 +31,10 @@ app.get('/state', (req, res) => {
   res.json(state)
 })
 
-app.get('/weapon/disable', (req, res) => {
-  state.weaponId = null
-  res.json(state)
-})
-
-app.get('/weapon/enable/:weaponId', (req, res) => {
-  state.weaponId = Number(req.params.weaponId)
-  res.json(state)
-})
-
-app.get('/energy/:energyId', (req, res) => {
-  state.energyId = Number(req.params.energyId)
+app.get('/weapon/set/:weaponLevel', (req, res) => {
+  const prevWeaponLevel = state.weaponLevel
+  state.weaponLevel = Number(req.params.weaponLevel) as WeaponLevel
+  console.log(`🔫   weapon level ${prevWeaponLevel} -> ${state.weaponLevel}`)
   res.json(state)
 })
 

@@ -5,8 +5,7 @@ const express = require("express");
 const app = express();
 function newGameState() {
     return {
-        weaponId: null,
-        energyId: null,
+        weaponLevel: 0,
         isGameWon: false,
         isGameLost: false,
         isGameStarted: false
@@ -21,16 +20,10 @@ app.use((req, res, next) => {
 app.get('/state', (req, res) => {
     res.json(state);
 });
-app.get('/weapon/disable', (req, res) => {
-    state.weaponId = null;
-    res.json(state);
-});
-app.get('/weapon/enable/:weaponId', (req, res) => {
-    state.weaponId = Number(req.params.weaponId);
-    res.json(state);
-});
-app.get('/energy/:energyId', (req, res) => {
-    state.energyId = Number(req.params.energyId);
+app.get('/weapon/set/:weaponLevel', (req, res) => {
+    const prevWeaponLevel = state.weaponLevel;
+    state.weaponLevel = Number(req.params.weaponLevel);
+    console.log(`🔫   weapon level ${prevWeaponLevel} -> ${state.weaponLevel}`);
     res.json(state);
 });
 app.get('/game/new', (req, res) => {
