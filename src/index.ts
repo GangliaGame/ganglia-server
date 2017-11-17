@@ -2,64 +2,24 @@
 import * as express from 'express'
 const app = express()
 
-type timestamp = number
-
-enum Color {
-  red = 1,
-  orange,
-  yellow,
-  green,
-  blue,
-  purple
-}
-
-type Weapon = {
-  name: string
-  color: Color,
-}
-
-const weapons: Array<Weapon> = [
-  {
-    name: 'Xanar Shells',
-    color: Color.red,
-  },
-  {
-    name: 'Plasma Field',
-    color: Color.green,
-  },
-  {
-    name: 'High-Energy Pulse Laser',
-    color: Color.blue,
-  },
-  {
-    name: 'Neutrino Torpedos',
-    color: Color.yellow,
-  },
-]
-
-// function weaponOfColorName(name: keyof typeof Color): Weapon | undefined {
-//   return weapons.find(weapon => weapon.color === Color[name])
-// }
-
-function weaponOfColor(color: Color): Weapon | undefined {
-  return weapons.find(weapon => weapon.color === color)
-}
+type WeaponId = number
+type EnergyId = number
 
 type GameState = {
-  weapon: Weapon | null,
-  gameOver: boolean,
-  gameWon: boolean,
-  gameStarted: boolean,
-  gameStartTime?: timestamp,
+  weaponId: WeaponId | null
+  energyId: EnergyId | null
+  isGameWon: boolean
+  isGameLost: boolean
+  isGameStarted: boolean
 }
 
 function newGameState(): GameState {
   return {
-    weapon: null,
-    gameOver: false,
-    gameWon: false,
-    gameStarted: false,
-    gameStartTime: Date.now(),
+    weaponId: null,
+    energyId: null,
+    isGameWon: false,
+    isGameLost: false,
+    isGameStarted: false
   }
 }
 
@@ -75,18 +35,37 @@ app.get('/state', (req, res) => {
 })
 
 app.get('/weapon/disable', (req, res) => {
-  state.weapon = null
+  state.weaponId = null
   res.json(state)
 })
 
-app.get('/weapon/enable/:colorName', (req, res) => {
-  const colorName: keyof typeof Color = req.params.colorName
-  state.weapon = weaponOfColor(Color[colorName]) || state.weapon
+app.get('/weapon/enable/:weaponId', (req, res) => {
+  state.weaponId = Number(req.params.weaponId)
   res.json(state)
 })
 
-app.get('/newGame', (req, res) => {
+app.get('/energy/:energyId', (req, res) => {
+  state.energyId = Number(req.params.energyId)
+  res.json(state)
+})
+
+app.get('/game/new', (req, res) => {
   state = newGameState()
+  res.json(state)
+})
+
+app.get('/game/start', (req, res) => {
+  state.isGameStarted = true
+  res.json(state)
+})
+
+app.get('/game/lost', (req, res) => {
+  state.isGameLost = true
+  res.json(state)
+})
+
+app.get('/game/won', (req, res) => {
+  state.isGameWon = true
   res.json(state)
 })
 

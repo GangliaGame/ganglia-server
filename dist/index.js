@@ -3,46 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // import * as _ from 'lodash'
 const express = require("express");
 const app = express();
-var Color;
-(function (Color) {
-    Color[Color["red"] = 1] = "red";
-    Color[Color["orange"] = 2] = "orange";
-    Color[Color["yellow"] = 3] = "yellow";
-    Color[Color["green"] = 4] = "green";
-    Color[Color["blue"] = 5] = "blue";
-    Color[Color["purple"] = 6] = "purple";
-})(Color || (Color = {}));
-const weapons = [
-    {
-        name: 'Xanar Shells',
-        color: Color.red,
-    },
-    {
-        name: 'Plasma Field',
-        color: Color.green,
-    },
-    {
-        name: 'High-Energy Pulse Laser',
-        color: Color.blue,
-    },
-    {
-        name: 'Neutrino Torpedos',
-        color: Color.yellow,
-    },
-];
-// function weaponOfColorName(name: keyof typeof Color): Weapon | undefined {
-//   return weapons.find(weapon => weapon.color === Color[name])
-// }
-function weaponOfColor(color) {
-    return weapons.find(weapon => weapon.color === color);
-}
 function newGameState() {
     return {
-        weapon: null,
-        gameOver: false,
-        gameWon: false,
-        gameStarted: false,
-        gameStartTime: Date.now(),
+        weaponId: null,
+        energyId: null,
+        isGameWon: false,
+        isGameLost: false,
+        isGameStarted: false
     };
 }
 // set CORS headers
@@ -55,16 +22,31 @@ app.get('/state', (req, res) => {
     res.json(state);
 });
 app.get('/weapon/disable', (req, res) => {
-    state.weapon = null;
+    state.weaponId = null;
     res.json(state);
 });
-app.get('/weapon/enable/:colorName', (req, res) => {
-    const colorName = req.params.colorName;
-    state.weapon = weaponOfColor(Color[colorName]) || state.weapon;
+app.get('/weapon/enable/:weaponId', (req, res) => {
+    state.weaponId = Number(req.params.weaponId);
     res.json(state);
 });
-app.get('/newGame', (req, res) => {
+app.get('/energy/:energyId', (req, res) => {
+    state.energyId = Number(req.params.energyId);
+    res.json(state);
+});
+app.get('/game/new', (req, res) => {
     state = newGameState();
+    res.json(state);
+});
+app.get('/game/start', (req, res) => {
+    state.isGameStarted = true;
+    res.json(state);
+});
+app.get('/game/lost', (req, res) => {
+    state.isGameLost = true;
+    res.json(state);
+});
+app.get('/game/won', (req, res) => {
+    state.isGameWon = true;
     res.json(state);
 });
 const port = process.env.PORT || 9000;
