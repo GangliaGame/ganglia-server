@@ -6,8 +6,10 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "@types/socket.io": "^1.4.31",
     "express": "^4.16.2",
     "lodash": "^4.17.4",
+    "socket.io": "^2.0.4",
     "typescript": "^2.6.1"
   },
   "devDependencies": {

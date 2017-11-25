@@ -1,8 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// import * as _ from 'lodash'
 const express = require("express");
+const http = require("http");
+const socketIo = require("socket.io");
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 function newGameState() {
     return {
         weaponLevel: 0,
@@ -26,6 +29,15 @@ app.get('/weapon/set/:weaponLevel', (req, res) => {
     console.log(`🔫   weapon level ${prevWeaponLevel} -> ${state.weaponLevel}`);
     res.json(state);
 });
+app.get('/move/:direction', (req, res) => {
+    const direction = req.params.direction;
+    if (direction === 'up') {
+    }
+    const prevWeaponLevel = state.weaponLevel;
+    state.weaponLevel = Number(req.params.weaponLevel);
+    console.log(`🔫   weapon level ${prevWeaponLevel} -> ${state.weaponLevel}`);
+    res.json(state);
+});
 app.get('/game/new', (req, res) => {
     state = newGameState();
     res.json(state);
@@ -35,6 +47,7 @@ app.get('/game/start', (req, res) => {
     res.json(state);
 });
 app.get('/game/lost', (req, res) => {
+    console.log(`☠️   game lost`);
     state.isGameLost = true;
     res.json(state);
 });
@@ -42,8 +55,13 @@ app.get('/game/won', (req, res) => {
     state.isGameWon = true;
     res.json(state);
 });
+io.on('connection', socket => {
+    console.log('⚡️  a user connected');
+    const broadcastEvents = ['move:up', 'move:down'];
+    broadcastEvents.map(event => socket.on(event, () => socket.broadcast.emit(event)));
+});
 const port = process.env.PORT || 9000;
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`👾  Serving on port ${port}`);
 });
 let state = newGameState();

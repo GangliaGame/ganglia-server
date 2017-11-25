@@ -1,6 +1,9 @@
-// import * as _ from 'lodash'
 import * as express from 'express'
+import * as http from 'http'
+import * as socketIo from 'socket.io'
 const app = express()
+const server = http.createServer(app)
+const io = socketIo(server)
 
 type WeaponLevel = 0 | 1 | 2 | 3
 
@@ -38,6 +41,17 @@ app.get('/weapon/set/:weaponLevel', (req, res) => {
   res.json(state)
 })
 
+app.get('/move/:direction', (req, res) => {
+  const direction = req.params.direction as string
+  if (direction === 'up') {
+
+  }
+  const prevWeaponLevel = state.weaponLevel
+  state.weaponLevel = Number(req.params.weaponLevel) as WeaponLevel
+  console.log(`🔫   weapon level ${prevWeaponLevel} -> ${state.weaponLevel}`)
+  res.json(state)
+})
+
 app.get('/game/new', (req, res) => {
   state = newGameState()
   res.json(state)
@@ -49,6 +63,7 @@ app.get('/game/start', (req, res) => {
 })
 
 app.get('/game/lost', (req, res) => {
+  console.log(`☠️   game lost`)
   state.isGameLost = true
   res.json(state)
 })
@@ -58,8 +73,15 @@ app.get('/game/won', (req, res) => {
   res.json(state)
 })
 
+io.on('connection', socket => {
+  console.log('⚡️  a user connected')
+
+  const broadcastEvents = ['move:up', 'move:down']
+  broadcastEvents.map(event => socket.on(event, () => socket.broadcast.emit(event)))
+})
+
 const port = process.env.PORT || 9000
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`👾  Serving on port ${port}`)
 })
 
