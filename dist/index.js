@@ -11,7 +11,8 @@ function newGameState() {
         weaponLevel: 0,
         isGameWon: false,
         isGameLost: false,
-        isGameStarted: false
+        isGameStarted: false,
+        isShieldActive: false,
     };
 }
 // set CORS headers
@@ -29,13 +30,14 @@ app.get('/weapon/set/:weaponLevel', (req, res) => {
     console.log(`🔫   weapon level ${prevWeaponLevel} -> ${state.weaponLevel}`);
     res.json(state);
 });
-app.get('/move/:direction', (req, res) => {
-    const direction = req.params.direction;
-    if (direction === 'up') {
-    }
-    const prevWeaponLevel = state.weaponLevel;
-    state.weaponLevel = Number(req.params.weaponLevel);
-    console.log(`🔫   weapon level ${prevWeaponLevel} -> ${state.weaponLevel}`);
+app.get('/shield/on', (req, res) => {
+    state.isShieldActive = true;
+    console.log(`🛡   shield -> on`);
+    res.json(state);
+});
+app.get('/shield/off', (req, res) => {
+    state.isShieldActive = false;
+    console.log(`🛡   shield -> off`);
     res.json(state);
 });
 app.get('/game/new', (req, res) => {
