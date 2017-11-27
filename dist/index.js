@@ -59,8 +59,11 @@ app.get('/game/won', (req, res) => {
 });
 io.on('connection', socket => {
     console.log('⚡️  a user connected');
-    const broadcastEvents = ['move:up', 'move:down'];
+    const broadcastEvents = ['move:up', 'move:down', 'move:stop'];
     broadcastEvents.map(event => socket.on(event, () => socket.broadcast.emit(event)));
+    socket.on('disconnect', () => {
+        console.log('🔌  a user disconnected');
+    });
 });
 const port = process.env.PORT || 9000;
 server.listen(port, () => {
