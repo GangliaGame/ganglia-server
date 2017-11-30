@@ -14,7 +14,17 @@ app.use((req, res, next) => {
 });
 io.on('connection', socket => {
     console.log('⚡️ connected');
-    const broadcastEvents = ['move', 'regen', 'propulsion', 'shields', 'weapons', 'fire', 'state'];
+    const broadcastEvents = [
+        'fire',
+        'move-up',
+        'move-down',
+        'weapons',
+        'shields',
+        'repair',
+        'propulsion',
+        'communications',
+        'state'
+    ];
     broadcastEvents.map(event => socket.on(event, data => {
         console.log(event, data);
         socket.broadcast.emit(event, data);
