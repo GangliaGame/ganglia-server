@@ -21,10 +21,10 @@ io.on('connection', socket => {
 
     'weapons',
     'shields',
-    'repair',
+    'repairs',
     'propulsion',
     'communications',
-    
+
     'state'
   ]
   broadcastEvents.map(event => socket.on(event, data => {
