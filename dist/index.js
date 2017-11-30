@@ -20,7 +20,7 @@ io.on('connection', socket => {
         'move-down',
         'weapons',
         'shields',
-        'repair',
+        'repairs',
         'propulsion',
         'communications',
         'state'
