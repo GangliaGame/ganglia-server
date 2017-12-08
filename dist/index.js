@@ -23,9 +23,8 @@ io.on('connection', socket => {
         'repairs',
         'propulsion',
         'communications',
+        'frontend-ready',
         'state',
-        'gamestart',
-        'gameover',
     ];
     broadcastEvents.map(event => socket.on(event, data => {
         console.log(event, data);

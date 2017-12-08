@@ -25,6 +25,8 @@ io.on('connection', socket => {
     'propulsion',
     'communications',
 
+    'frontend-ready',
+
     'state',
   ]
   broadcastEvents.map(event => socket.on(event, data => {
