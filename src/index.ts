@@ -25,7 +25,9 @@ io.on('connection', socket => {
     'propulsion',
     'communications',
 
-    'state'
+    'state',
+    'gamestart',
+    'gameover',
   ]
   broadcastEvents.map(event => socket.on(event, data => {
     console.log(event, data)
